@@ -53,6 +53,19 @@ public class Customer {
         return customerParkingSpaces;
     }
 
+    // Return the occupied parking spaces assigned to a customer
+    ParkingSpace[] getOccupiedParkingSpaces() {
+        ParkingSpace[] occupied = new ParkingSpace[getOccupiedSpaces()];
+        int index = 0;
+
+        for (ParkingSpace space : customerParkingSpaces){
+            if (space != null) {
+                occupied[index++] = space;
+            }
+        }
+        return occupied;
+    }
+
     // Set the customer parking spaces
     void setCustomerParkingSpaces(ParkingSpace[] customerParkingSpaces) {
         this.customerParkingSpaces = customerParkingSpaces;
@@ -71,6 +84,19 @@ public class Customer {
     // Return the number of days a customer is renting
     int getNumberOfDays() {
         return numberOfDays;
+    }
+
+    void setNumberOfDays(int numberOfDays) {
+        this.numberOfDays = numberOfDays;
+    }
+
+    // Return the number of cars
+     int getNumberOfCars() {
+        return numberOfCars;
+    }
+
+    void setNumberOfCars(int numberOfCars) {
+        this.numberOfCars = numberOfCars;
     }
 
     // Return the number of occupied spaces

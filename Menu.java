@@ -47,7 +47,7 @@ public class Menu implements Constants {
 				case 2: {
 					int id = getInputAsInteger("Enter customer ID: ");
 					int total = getInputAsInteger("Enter the number of days: ");
-					int floor = getInputAsInteger("Enter the floor: ");
+					int floor = getInputAsInteger("Enter the floor: ") - 1;
 					if ((id > 0) && (total > 0) && (floor >= 0)) {
 						try {
 							double cost = lots.allocateSpaceIndividualFloor(id, total, floor);
@@ -174,17 +174,20 @@ public class Menu implements Constants {
 
 					if (floorNo > 0 && parkingLotID > 0) {
 						 int[] spaces = lots.getListOfFreeSpaces(floorNo, parkingLotID);
-						 for (int i : spaces) {
+						 for (int i = 0; i < spaces.length; i++)
+						 {
 							System.out.print(spaces[i] + ", ");
 						 }
+						 System.out.println();
 					}
 					break;
 				}
 
 				case 14: {
 					lots.compactSpaces();
+					lots.map(0);
+					System.out.println();
 					lots.map(1);
-					lots.map(2);
 					break;
 				}
 
