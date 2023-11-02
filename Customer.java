@@ -86,6 +86,7 @@ public class Customer {
         return numberOfDays;
     }
 
+    // Set the number of days 
     void setNumberOfDays(int numberOfDays) {
         this.numberOfDays = numberOfDays;
     }
@@ -95,6 +96,7 @@ public class Customer {
         return numberOfCars;
     }
 
+    // Set the number of cars
     void setNumberOfCars(int numberOfCars) {
         this.numberOfCars = numberOfCars;
     }

@@ -37,7 +37,11 @@ public class Floor {
 
         // Initialise the spaces on the floor
         for (int i = 0; i < spaces.length; i++) {
-            this.spaces[i] = new ParkingSpace(i+1, 'O', null, this);
+            if (i < 3 && this.floorNo == 1) {
+                this.spaces[i] = new ParkingSpace(i+1, 'D', null, this);
+            } else {
+                this.spaces[i] = new ParkingSpace(i+1, 'O', null, this);
+            }
         }
     }
 
@@ -61,7 +65,7 @@ public class Floor {
         int freeSpaces = 0; 
 
         for (int i = 0; i < spaces.length; i++) {
-            if (spaces[i].getValue() == 'O') {
+            if (spaces[i].getCustomer() == null && spaces[i].getValue() != 'D') {
                 freeSpaces++;
             }
         }
@@ -98,7 +102,7 @@ public class Floor {
         ParkingSpace available = null;
 
         for (int i = 0; i < spaces.length; i++) {
-            if (spaces[i].getValue() == 'O') {
+            if (spaces[i].getCustomer() == null && spaces[i].getValue() != 'D') {
                 available = spaces[i];
                 break;
             }
@@ -112,7 +116,7 @@ public class Floor {
         int index = 0;
 
         for (int i = 0; i < spaces.length; i++) {
-                if (spaces[i].getValue() == 'O') {
+                if (spaces[i].getCustomer() == null && spaces[i].getValue() != 'D') {
                         available[index++] = spaces[i];
             }
         }

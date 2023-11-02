@@ -9,8 +9,8 @@
 import java.util.ArrayList;
 
 public class ParkingLotManager {
-	private ParkingLot parkingLots[];
-	private ArrayList<Customer> customers;
+	private ParkingLot parkingLots[]; // Parking lots
+	private ArrayList<Customer> customers; // List of customers
 
 	ParkingLotManager() {
 		parkingLots = new ParkingLot[2];
@@ -153,10 +153,10 @@ public class ParkingLotManager {
 
 	// Allocate spaces on the desired floor to a company
 	public double allocateSpaceCompany(int numberOfCars, int companyNo) throws NoFreeSpacesException {
-		int numberOfFloors = (numberOfCars / 2) + 1;
-		Floor[] available = new Floor[numberOfFloors];
-		Customer company = getCompanyById(companyNo);
-		double cost = 0.0;
+		int assigned = 0; // Number of cars assigned for the company
+		int numberOfFloors = (numberOfCars / 2) + (numberOfCars % 2); // Number of floors needed
+		Customer company = getCompanyById(companyNo); // Company to rent spaces to
+		double cost = 0.0; // Cost for rent per month
 
 		// Check if the company has reached their car limit
 		if (company.getOccupiedSpaces() + numberOfCars > 10) {
@@ -164,13 +164,36 @@ public class ParkingLotManager {
 		}
 
 		int index = 0;
-		int floorIndex = 0;
+		int occupied = 0; // Number of spaces occupied by the company on a floor
 
-		// Get a list of available floors
 		for (ParkingLot parkingLot : parkingLots) {
 			for (Floor floor : parkingLot.getFloors()) {
-				if (floor.getFreeSpaces() >= 2) {
-					available[index++] = floor;
+				occupied = 0;
+
+				// Count the number of spaces occupied by the company on the floor
+				for (ParkingSpace space : company.getOccupiedParkingSpaces()) {
+					if (space.getFloor() == floor) {
+						occupied++;
+					}
+				}
+
+				// Check if the floor has spaces available
+				if (floor.getFreeSpaces() >= 2 && occupied < 2) {
+					// Get a list of available spaces on the available floor
+					ParkingSpace[] freeSpaces = floor.getAvailableSpaces();
+
+					// Allocate the space
+					for (int i = 0; i < (2 - occupied); i++) {
+						if (assigned < numberOfCars) {
+							company.addCustomerSpace(freeSpaces[i]); // Assign the spaces to the company
+							freeSpaces[i].setCustomer(company); // Assign the customer to the space
+							cost += floor.getCostPerMonth(); // Get the cost for the space
+
+							assigned++;
+						}
+					}
+
+					index++;
 
 					if (index >= numberOfFloors - 1) {
 						break;
@@ -179,47 +202,14 @@ public class ParkingLotManager {
 			}
 		}
 
-			// If no floors have available spaces, throw the No Free Spaces Exception
-			if (available[floorIndex].getFreeSpaces() == 0) {
-				throw new NoFreeSpacesException();
-			}
-		
-
-			// Check if the company is already renting on that floor
-			for (Floor floor : available) {
-				int count = 0;
-
-				for (ParkingSpace space : company.getOccupiedParkingSpaces()) {
-					// Count the number of spaces occupied by the company on the floor
-					if (space.getFloor() == floor) {
-						count++;
-					}
-				}
-
-				// Check if the company is renting less than 2 spaces
-				if (count < 2) {
-					// Get a list of available spaces on the available floor
-					ParkingSpace[] freeSpaces = available[floorIndex].getAvailableSpaces();
-
-					// Allocate the spaces
-					for (int i = 0; i < 2; i++) {
-						company.addCustomerSpace(freeSpaces[i]); // Assign the spaces to the company
-						freeSpaces[i].setCustomer(company); // Assign the customer to the space
-						cost += available[floorIndex].getCostPerMonth(); // Get the cost for the space
-					}
-
-					company.setNumberOfCars(numberOfCars); // Set the number of cars for the company
-
-				}
-
-				floorIndex++;
-			}
-
-		
-
+		// If not enough floors have available spaces, throw the No Free Spaces Exception
+		if (index < numberOfFloors - 1) {
+			throw new NoFreeSpacesException();
+		}
 		return cost;
 	}
 
+	// Remove an individual from a space
 	public boolean removeIndividual(int customerID) {
 		Customer customer = getCustomerById(customerID);
 
@@ -235,6 +225,7 @@ public class ParkingLotManager {
 		}
 	}
 
+	// Remove a company from the spaces occupied
 	public boolean removeCompany(int companyNo) {
 		Customer company = getCompanyById(companyNo);
 
@@ -242,7 +233,7 @@ public class ParkingLotManager {
 		if (company != null && company.getOccupiedSpaces() != 0) {
 			for (ParkingSpace space : company.getOccupiedParkingSpaces()) {
 				space.removeCustomer(); // Remove the customer from the space
-				company.setCustomerParkingSpaces(null); // Remove the space from the customer
+				company.setCustomerParkingSpaces(null); // Remove the space from the company
 			}
 			return true;
 		} else {
@@ -250,12 +241,14 @@ public class ParkingLotManager {
 		}
 	}
 
+	// Check how many spaces are allocated to a company
 	public int totalCompanySpacesAllocated(int companyNo) {
 		Customer company = getCompanyById(companyNo);
 
 		return company.getOccupiedSpaces();
 	}
 
+	// Get the monthly rent owed by a company
 	public double monthlyRent(int companyNo) {
 		Customer company = getCompanyById(companyNo);
 		double rent = 0.0;
@@ -267,6 +260,7 @@ public class ParkingLotManager {
 		return rent;
 	}
 
+	// Find the total amount owed by an individual
 	public double totalOwedIndividual(int customerID) {
 		Customer customer = getCustomerById(customerID);
 		double owed = 0.0;
@@ -321,7 +315,7 @@ public class ParkingLotManager {
 	public void freeSpace(int spaceNo, int floorNo, int parkingLotID) {
 		Floor floor[] = parkingLots[parkingLotID].getFloors();
 
-		if (floor[floorNo].getSpace(spaceNo).getValue() != 'O') {
+		if (floor[floorNo].getSpace(spaceNo).getValue() != 'O' && floor[floorNo].getSpace(spaceNo).getValue() != 'D') {
 			floor[floorNo].getSpace(spaceNo).setValue('O');
 		}
 	}
@@ -336,7 +330,7 @@ public class ParkingLotManager {
 
 		// Store the space number of the available spaces in a list
 		for (ParkingSpace space : floor[floorNo].getSpaces()) {
-			if (space.getValue() == 'O') {
+			if (space.getCustomer() == null) {
 				resultList.add(space.getSpaceNo());
 			}
 		}
@@ -361,7 +355,7 @@ public class ParkingLotManager {
 				ParkingSpace[] empty = new ParkingSpace[floor.getFreeSpaces()];
 
 				for (ParkingSpace parkingSpace : floor.getSpaces()) {
-					if (parkingSpace.getValue() == 'O') {
+					if (parkingSpace.getCustomer() == null && parkingSpace.getValue() != 'D') {
 						empty[emptyIndex++] = parkingSpace;
 					} else {
 						occupied[occupiedIndex++] = parkingSpace;

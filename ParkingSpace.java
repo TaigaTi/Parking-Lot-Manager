@@ -53,6 +53,11 @@ public class ParkingSpace {
         }
     }
 
+    // Return the customer in the space
+    public Customer getCustomer() {
+        return customer;
+    }
+
     // Set the floor that the space is on
     public void setFloor(Floor floor) {
         this.floor = floor;

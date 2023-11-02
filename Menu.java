@@ -6,7 +6,6 @@
  * Manages the menu.
  */
 
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Menu implements Constants {
